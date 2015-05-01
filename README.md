@@ -1,17 +1,19 @@
 ## Overview
 
-Package dogstatsd provides a Go DogStatsD client. DogStatsD extends StatsD - adding tags and histograms. The documentation for DogStatsD is here: http://docs.datadoghq.com/guides/dogstatsd/
+Package dogstatsd provides a Go DogStatsD client.
+DogStatsD extends StatsD - adding tags and histograms.
+The documentation for DogStatsD is here: http://docs.datadoghq.com/guides/dogstatsd/
 
 ## Get the code
 
-    $ go get github.com/ooyala/go-dogstatsd
+    $ go get github.com/creack/dogstatsd
 
 ## Usage
 
     // Create the client
-    c, err := dogstatsd.New("127.0.0.1:8125", "flubber.", []string{"us-east-1a"})
+    c, err := dogstatsd.New("127.0.0.1:8125")
     if err != nil {
-      log.Fatal(err)
+        log.Fatal(err)
     }
     defer c.Close()
 
@@ -33,8 +35,9 @@ Run the tests with:
 
 ## Documentation
 
-Please see: http://godoc.org/github.com/ooyala/go-dogstatsd
+Please see: http://godoc.org/github.com/creack/dogstatsd
 
 ## License
 
-go-dogstatsd is released under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
+dogstatsd is a fork of [ooyala go-dogstatsd](https://github.com/ooyala/go-dogstatsd)
+and is released under the [MIT license](http://www.opensource.org/licenses/mit-license.php).
