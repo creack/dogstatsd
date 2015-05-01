@@ -76,24 +76,24 @@ type eventTest struct {
 var eventTests = []eventTest{
 	{
 		logEvent: func(c *Client) error { return c.Warning("title", "text", []string{"tag1", "tag2"}) },
-		expected: "_e{5,4}:title|text|t:warning|s:flubber|#tag1,tag2",
+		expected: "_e{13,4}:flubber.title|text|t:warning|s:flubber|#tag1,tag2",
 	},
 	{
 		logEvent: func(c *Client) error { return c.Error("Error!", "some error", []string{"tag3"}) },
-		expected: "_e{6,10}:Error!|some error|t:error|s:flubber|#tag3",
+		expected: "_e{14,10}:flubber.Error!|some error|t:error|s:flubber|#tag3",
 	},
 	{
 		logEvent: func(c *Client) error { return c.Info("FYI", "note", []string{}) },
-		expected: "_e{3,4}:FYI|note|t:info|s:flubber",
+		expected: "_e{11,4}:flubber.FYI|note|t:info|s:flubber",
 	},
 	{
 		logEvent: func(c *Client) error { return c.Success("Great News", "hurray", []string{"foo", "bar", "baz"}) },
-		expected: "_e{10,6}:Great News|hurray|t:success|s:flubber|#foo,bar,baz",
+		expected: "_e{18,6}:flubber.Great News|hurray|t:success|s:flubber|#foo,bar,baz",
 	},
 	{
 		logEvent: func(c *Client) error { return c.Info("Unicode", "世界", []string{}) },
 		// Expect character, not byte lengths
-		expected: "_e{7,2}:Unicode|世界|t:info|s:flubber",
+		expected: "_e{15,2}:flubber.Unicode|世界|t:info|s:flubber",
 	},
 	{
 		logEvent: func(c *Client) error {
@@ -107,7 +107,7 @@ var eventTests = []eventTest{
 			}
 			return c.Event("custom title", "custom body", &eo)
 		},
-		expected: "_e{12,11}:custom title|custom body|t:success|s:bar|d:1411080960|p:normal|h:node.example.com|k:foo",
+		expected: "_e{20,11}:flubber.custom title|custom body|t:success|s:bar|d:1411080960|p:normal|h:node.example.com|k:foo",
 	},
 }
 
@@ -130,10 +130,10 @@ func TestEvent(t *testing.T) {
 
 	b := bytes.NewBuffer(nil)
 	b.Write(bytes.Repeat([]byte("a"), maxEventBytes+1))
-
-	err := client.Error("too long", b.String(), []string{})
-	if err == nil || err.Error() != "Event \"too long\" payload is too big (more that 8KB), event discarded" {
-		t.Errorf("Expected error due to exceeded event byte length")
+	if err := client.Error("too long", b.String(), []string{}); err == nil {
+		t.Fatal("Expected error due to exceeded event byte length")
+	} else if expect, got := err.Error(), "Event \"flubber.too long\" payload is too big (more that 8KB), event discarded"; expect != got {
+		t.Errorf("Unexpected error message.\nExpect:\t%s\nGot:\t%s", expect, got)
 	}
 }
 

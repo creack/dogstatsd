@@ -94,7 +94,7 @@ func New(addr string) (*Client, error) {
 }
 
 // send handles sampling and sends the message over UDP. It also adds global namespace prefixes and tags.
-func (c *Client) send(name string, value string, tags []string, rate float64) error {
+func (c *Client) send(name, value string, tags []string, rate float64) error {
 	if rate < 1 {
 		// rand.Float64 returns between 0.0 and 1.0. When rate < 1, randomly drop the stat.
 		if rand.Float64() > rate {
@@ -130,29 +130,33 @@ func (c *Client) newDefaultEventOpts(alertType AlertType, tags []string) *EventO
 }
 
 // Info forges an Info event
-func (c *Client) Info(title string, text string, tags []string) error {
+func (c *Client) Info(title, text string, tags []string) error {
 	return c.Event(title, text, c.newDefaultEventOpts(Info, tags))
 }
 
 // Success forges a Success event
-func (c *Client) Success(title string, text string, tags []string) error {
+func (c *Client) Success(title, text string, tags []string) error {
 	return c.Event(title, text, c.newDefaultEventOpts(Success, tags))
 }
 
 // Warning forges a Warning event
-func (c *Client) Warning(title string, text string, tags []string) error {
+func (c *Client) Warning(title, text string, tags []string) error {
 	return c.Event(title, text, c.newDefaultEventOpts(Warning, tags))
 }
 
 // Error forges an Error event
-func (c *Client) Error(title string, text string, tags []string) error {
+func (c *Client) Error(title, text string, tags []string) error {
 	return c.Event(title, text, c.newDefaultEventOpts(Error, tags))
 }
 
 // Event posts to the Datadog event stream.
 // Four event types are supported: info, success, warning, error.
 // If client Namespace is set it is used as the Event source.
-func (c *Client) Event(title string, text string, eo *EventOpts) error {
+func (c *Client) Event(title, text string, eo *EventOpts) error {
+	if c.hasNS {
+		title = c.namespace + title
+	}
+
 	// Can't use `len()` because we accept utf8
 	// TODO: is it relevent to know the rune count vs byte length? RunCountInString is slow, len() is fast
 	titleLen, textLen := int64(utf8.RuneCountInString(title)), int64(utf8.RuneCountInString(text))
