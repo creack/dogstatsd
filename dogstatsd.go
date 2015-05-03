@@ -122,6 +122,9 @@ func (c *Client) send(name, value string, tags []string, rate float64) error {
 func (c *Client) Close() error { return c.conn.Close() }
 
 func (c *Client) newDefaultEventOpts(alertType AlertType, tags []string) *EventOpts {
+	if c.hasNS {
+		tags = append(tags, c.eventSource+"-"+string(alertType))
+	}
 	return &EventOpts{
 		AlertType:      alertType,
 		Tags:           tags,
@@ -155,6 +158,7 @@ func (c *Client) Error(title, text string, tags []string) error {
 func (c *Client) Event(title, text string, eo *EventOpts) error {
 	if c.hasNS {
 		title = c.namespace + title
+		eo.Tags = append(eo.Tags, c.eventSource)
 	}
 
 	// Can't use `len()` because we accept utf8
