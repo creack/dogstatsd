@@ -27,6 +27,7 @@ dogstatsd is based on go-statsd-client.
 package dogstatsd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"math/rand"
@@ -83,6 +84,11 @@ type Client struct {
 	hasTags bool
 }
 
+// Common errors.
+var (
+	ErrNoInitialized = errors.New("stasd client not initialized")
+)
+
 // New returns a pointer to a new Client and an error.
 // addr must have the format "hostname:port".
 func New(addr string) (*Client, error) {
@@ -95,6 +101,9 @@ func New(addr string) (*Client, error) {
 
 // send handles sampling and sends the message over UDP. It also adds global namespace prefixes and tags.
 func (c *Client) send(name, value string, tags []string, rate float64) error {
+	if c == nil || c.conn == nil {
+		return ErrNoInitialized
+	}
 	if rate < 1 {
 		// rand.Float64 returns between 0.0 and 1.0. When rate < 1, randomly drop the stat.
 		if rand.Float64() > rate {
@@ -119,7 +128,7 @@ func (c *Client) send(name, value string, tags []string, rate float64) error {
 }
 
 // Close closes the connection to the DogStatsD agent
-func (c *Client) Close() error { return c.conn.Close() }
+func (c *Client) Close() error { err := c.conn.Close(); c.conn = nil; return err }
 
 func (c *Client) newDefaultEventOpts(alertType AlertType, tags []string) *EventOpts {
 	return &EventOpts{
