@@ -130,7 +130,8 @@ func (c *Client) send(name, value string, tags []string, rate float64) error {
 // Close closes the connection to the DogStatsD agent
 func (c *Client) Close() error { err := c.conn.Close(); c.conn = nil; return err }
 
-func (c *Client) newDefaultEventOpts(alertType AlertType, tags []string) *EventOpts {
+// NewDefaultEventOpts create an EventOpts object with default values.
+func (c *Client) NewDefaultEventOpts(alertType AlertType, tags []string) *EventOpts {
 	if c.hasNS {
 		tags = append(tags, c.eventSource+"-"+string(alertType))
 	}
@@ -143,22 +144,22 @@ func (c *Client) newDefaultEventOpts(alertType AlertType, tags []string) *EventO
 
 // Info forges an Info event
 func (c *Client) Info(title, text string, tags []string) error {
-	return c.Event(title, text, c.newDefaultEventOpts(Info, tags))
+	return c.Event(title, text, c.NewDefaultEventOpts(Info, tags))
 }
 
 // Success forges a Success event
 func (c *Client) Success(title, text string, tags []string) error {
-	return c.Event(title, text, c.newDefaultEventOpts(Success, tags))
+	return c.Event(title, text, c.NewDefaultEventOpts(Success, tags))
 }
 
 // Warning forges a Warning event
 func (c *Client) Warning(title, text string, tags []string) error {
-	return c.Event(title, text, c.newDefaultEventOpts(Warning, tags))
+	return c.Event(title, text, c.NewDefaultEventOpts(Warning, tags))
 }
 
 // Error forges an Error event
 func (c *Client) Error(title, text string, tags []string) error {
-	return c.Event(title, text, c.newDefaultEventOpts(Error, tags))
+	return c.Event(title, text, c.NewDefaultEventOpts(Error, tags))
 }
 
 // Event posts to the Datadog event stream.
